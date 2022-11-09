@@ -23,10 +23,17 @@ async function run() {
         // get all data using Find Multiple option
         app.get('/services', async (req, res) => {
             const query = {}
-            const cursor = serviceCollection.find(query);
+            const cursor = serviceCollection.find(query).sort({ date: -1 });
             const services = await cursor.toArray();
             res.send(services);
-        })
+        });
+
+        // create post with add new service
+        app.post('/services', async (req, res) => {
+            const service = req.body;
+            const result = await serviceCollection.insertOne(service);
+            res.send(result);
+        });
     }
 
     finally {
