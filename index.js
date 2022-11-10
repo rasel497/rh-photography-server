@@ -20,6 +20,8 @@ async function run() {
 
     try {
         const serviceCollection = client.db('rhPhotography').collection('services');
+        const reviewCollection = client.db('rhPhotography').collection('reviews');
+
 
         // get all data using Find Multiple option
         app.get('/services', async (req, res) => {
@@ -33,14 +35,29 @@ async function run() {
             const id = req.params.id
             const query = { _id: ObjectId(id) }
             const service = await serviceCollection.findOne(query)
-            res.send(service)
-        })
+            res.send(service);
+        });
 
+        // review get or read data 
+        app.get('/reviews', async (req, res) => {
+            const query = {}
+            const cursor = reviewCollection.find(query).sort({ date: -1 });
+            const review = await cursor.toArray();
+            res.send(review);
+        });
 
+        // --------------------POST DATA---------------------------//
         // create post with add new service
         app.post('/services', async (req, res) => {
             const service = req.body;
             const result = await serviceCollection.insertOne(service);
+            res.send(result);
+        });
+
+        // review data post or create
+        app.post('/reviews', async (req, res) => {
+            const review = req.body;
+            const result = await reviewCollection.insertOne(review);
             res.send(result);
         });
     }
