@@ -25,9 +25,10 @@ async function run() {
 
         // get all data using Find Multiple option
         app.get('/services', async (req, res) => {
+            const size = parseInt(req.query.size);
             const query = {}
             const cursor = serviceCollection.find(query).sort({ date: -1 });
-            const services = await cursor.toArray();
+            const services = await cursor.limit(size).toArray();
             res.send(services);
         });
         // loaded single data
@@ -44,6 +45,27 @@ async function run() {
             const cursor = reviewCollection.find(query).sort({ date: -1 });
             const review = await cursor.toArray();
             res.send(review);
+        });
+
+        // add review data post or create
+        app.get('/reviews/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log(id);
+            const query = { serviceId: id }
+            const cursor = reviewCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result)
+        });
+
+        // add Myreview data post or create
+        // myReviews/${user.uid}
+        app.get('/myReviews/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log(id);
+            const query = { userUid: id }
+            const cursor = reviewCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result)
         });
 
         // --------------------POST DATA---------------------------//
@@ -66,6 +88,14 @@ async function run() {
             const { id } = req.params;
             const result = await reviewCollection.deleteOne({ _id: ObjectId(id) });
             res.send(result);
+        });
+
+
+        // 04.Update or Edit review data
+        app.get('/review/:id', async (req, res) => {
+            const { id } = req.params;
+            const result = await reviewCollection.findOne({ _id: ObjectId(id) });
+            res.send(result)
         })
     }
 
@@ -73,6 +103,7 @@ async function run() {
 
     }
 }
+
 run().catch(err => console.error(err));
 
 
