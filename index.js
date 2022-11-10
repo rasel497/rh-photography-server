@@ -60,6 +60,13 @@ async function run() {
             const result = await reviewCollection.insertOne(review);
             res.send(result);
         });
+
+        // Delete item
+        app.delete('/reviews/:id', async (req, res) => {
+            const { id } = req.params;
+            const result = await reviewCollection.deleteOne({ _id: ObjectId(id) });
+            res.send(result);
+        })
     }
 
     finally {
