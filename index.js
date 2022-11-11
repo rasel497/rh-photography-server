@@ -1,8 +1,10 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const res = require('express/lib/response');
 const query = require('express/lib/middleware/query');
+
 require('dotenv').config();
 require('colors');
 const app = express();
