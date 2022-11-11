@@ -19,11 +19,37 @@ app.use(express.json());
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.mpr3cem.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+
+// varify jwt token function 
+const varifyJWT = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.status(401).send({ massage: "unauthorized access1" });
+    }
+    const token = authHeader.split(" ")[1]
+    jwt.verify(token, process.env.ACCESS_SECRET_TOKEN, (err, decoded) => {
+        if (err) {
+            return res.status(403).send({ massage: "unauthorized access2" });
+        }
+        req.decoded = decoded;
+        next()
+    })
+}
+
+
 async function run() {
 
     try {
         const serviceCollection = client.db('rhPhotography').collection('services');
         const reviewCollection = client.db('rhPhotography').collection('reviews');
+
+        //This start using for JWT token
+        app.post('/jwt', (req, res) => {
+            const userUid = req.body;
+            // console.log(userUid);
+            const token = jwt.sign(userUid, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '3h' })
+            res.send({ token });
+        })
 
 
         // get all data using Find Multiple option
@@ -61,7 +87,6 @@ async function run() {
         });
 
         // add Myreview data post or create
-        // myReviews/${user.uid}
         app.get('/myReviews/:id', async (req, res) => {
             const id = req.params.id;
             console.log(id);
