@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const res = require('express/lib/response');
+const query = require('express/lib/middleware/query');
 require('dotenv').config();
 require('colors');
 const app = express();
@@ -92,11 +93,29 @@ async function run() {
 
 
         // 04.Update or Edit review data
-        app.get('/review/:id', async (req, res) => {
-            const { id } = req.params;
-            const result = await reviewCollection.findOne({ _id: ObjectId(id) });
+        app.get('/editreview/:id', async (req, res) => {
+            const id = req.params;
+            const query = { _id: ObjectId(id) }
+            const result = await reviewCollection.findOne(query);
             res.send(result)
-        })
+        });
+
+        // 04.Update or Edit review data
+        app.put('/editReview/:id', async (req, res) => {
+            const query = req.body;
+            console.log(query)
+            const id = req.params;
+            console.log(id);
+            const filter = { _id: ObjectId(id) }
+            const options = { upsert: true };
+            const review = {
+                $set: {
+                    dispalyName: query.dispalyName, serviceReview: query.writeReview
+                }
+            }
+            const result = await reviewCollection.updateOne(filter, review, options);
+            res.send(result)
+        });
     }
 
     finally {
